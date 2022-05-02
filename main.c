@@ -13,19 +13,30 @@
 #include <locale.h>
 #include "dados.h"
 
+#pragma warning( disable : 4996 ) //evita MSG ERROS: _CRT_SECURE_NO_WARNINGS
 
 int main(){
 
 	
 	Job *j1 = CriaJob(1, "camisolas");
 	Job *j2 = CriaJob(2, "sapatos");
+	Job* JobLista = NULL;
+	JobLista = InsereJobFim(JobLista, j1);
+	JobLista = InsereJobFim(JobLista, j2);
+	bool auxjob = ExisteJob(JobLista, 1);
+
 	Maquinas *m1 = CriaMaquinas(1);
 	Maquinas *m2 = CriaMaquinas(2);
-	Operacoes *o11 = CriaOperacoes(1, j1->cod, m1->cod, 4); //cod, maquina, tempo
+	Maquinas* MaqLista = NULL;
+	MaqLista = InsereMaquinasFim(MaqLista, m1);
+	MaqLista = InsereMaquinasFim(MaqLista, m2);
+	bool auxmaq = ExisteMaquinas(MaqLista, 1);
 
+
+	Operacoes *o11 = CriaOperacoes(1, j1->cod, m1->cod, 4); //cod, maquina, tempo
 	Operacoes* OPLista = NULL;
 	OPLista = InsereOperacoesFim(OPLista, o11);
-	bool aux = ExisteOperacoes(OPLista, 1);
+	bool auxop = ExisteOperacoes(OPLista, 1);
 	MostraLista(OPLista);
 	OPLista=AlteraOperacoes(OPLista, 1, j2->cod, m2->cod, 5); 
 	MostraLista(OPLista);

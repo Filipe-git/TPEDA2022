@@ -37,8 +37,8 @@ Job* CriaJob(int cod, char* prod){
  * @return Job* 
  */
 Job* InsereJobFim(Job* j, Job* novo){
-	//Verificar se o nova operação já existe!
-	if (ExisteOperacoes(j, novo->cod)) return j;	//se existir não insere!
+	//Verificar se o novo Job já existe!
+	if (ExisteJob(j, novo->cod)) return j;	//se existir não insere!
 
 	if (j == NULL) {		//lista vazia
 		j = novo;
@@ -152,12 +152,13 @@ bool ExisteMaquinas(Maquinas *m, int cod) {
  * @param j
  * @return Operacoes* 
  */
-Operacoes* CriaOperacoes(int cod, Maquinas* m, int tempo)
+Operacoes* CriaOperacoes(int cod, Job* j, Maquinas* m, int tempo)
 {
 	Operacoes* newOperacoes = (Operacoes*)malloc(sizeof(Operacoes));
 	if (newOperacoes == NULL) return NULL;	//pode não haver memória!
 	newOperacoes->cod = cod;
     newOperacoes->m.cod = m;
+	newOperacoes->j.cod = j;
 	newOperacoes->tempo = tempo;
 	newOperacoes->next = NULL;
 	return newOperacoes;
@@ -311,6 +312,7 @@ void MostraOperacoes(Operacoes* nodo) {
 	if (nodo != NULL)
 	{
 		printf("\nCodigo: %d\n", nodo->cod);
+		printf("Job: %d\n", nodo->j.cod);
 		printf("Maquina: %d\n", nodo->m.cod);
 		printf("Tempo: %d\n", nodo->tempo);
 		

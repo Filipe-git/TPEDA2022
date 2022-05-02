@@ -13,7 +13,7 @@
 
 //Define para definir limite de Jobs e Operações
 
-#define N 7 //Ainda não usado
+#define N 10 //Ainda não usado
 
 #pragma region Structs
 
@@ -36,7 +36,7 @@ typedef struct Maquinas {
  */
 typedef struct Job {
 	int cod;
-    char produto;
+    char produto[N];
 	struct Job* next;
 }Job;
 
@@ -81,7 +81,7 @@ bool ExisteMaquinas(Maquinas *m, int cod);
 #pragma endregion
 
 #pragma region Funções Job
-Job* CriaJob(int cod, char prod);
+Job* CriaJob(int cod, char* prod);
 Job* InsereJobFim(Job* j, Job* novo);
 bool ExisteJob(Job *j, int cod);
 #pragma endregion
@@ -99,7 +99,6 @@ Operacoes* InsereOperacoesOrdenado(Operacoes* o, Operacoes* novo);
 void MostraLista(Operacoes* o);
 void MostraOperacoes(Operacoes* nodo);
 void DestroiLista(Operacoes** o);
-//Calculos //EM FALTA
 int QuantidadeMinima(Operacoes* o);
 int QuantidadeMaxima(Operacoes* o);
 int QuantidadeMedia(Operacoes* o);
