@@ -18,37 +18,88 @@
 int main(){
 
 	
-	Job *j1 = CriaJob(1, "camisolas");
-	Job *j2 = CriaJob(2, "sapatos");
-	Job* JobLista = NULL;
-	JobLista = InsereJobFim(JobLista, j1);
-	JobLista = InsereJobFim(JobLista, j2);
-	bool auxjob = ExisteJob(JobLista, 1);
+	setlocale(LC_ALL, "Portuguese");
 
-	Maquinas *m1 = CriaMaquinas(1);
-	Maquinas *m2 = CriaMaquinas(2);
-	Maquinas* MaqLista = NULL;
-	MaqLista = InsereMaquinasFim(MaqLista, m1);
-	MaqLista = InsereMaquinasFim(MaqLista, m2);
-	bool auxmaq = ExisteMaquinas(MaqLista, 1);
-
-
-	Operacoes *o11 = CriaOperacoes(1, j1->cod, m1->cod, 4); //cod, maquina, tempo
-	Operacoes* OPLista = NULL;
-	OPLista = InsereOperacoesFim(OPLista, o11);
-	bool auxop = ExisteOperacoes(OPLista, 1);
-	MostraLista(OPLista);
-	OPLista=AlteraOperacoes(OPLista, 1, j2->cod, m2->cod, 5); 
-	MostraLista(OPLista);
-	OPLista = RemoveOperacoes(OPLista, 1);
-	MostraLista(OPLista);
-
-	/*Utilizar ficheiros*/
 	
-	bool b = gravarOperacoesText("Dados.txt", OPLista);
-	DestroiLista(&OPLista);
-	OPLista = lerOperacoesText("Dados.txt");
-	MostraLista(OPLista);
+	Maquinas* listamaq = NULL;
+	Operacoes* listaop = NULL;
+	Job* listajob = NULL;
+	
+	Maquinas* m;
+	Operacoes* op;
+	Job* job;
+	job = CriaJob(1);
+	listajob = InsereJobFim(listajob, job);
+	m = CriaMaquinas(1,2);
+	listamaq = InsereMaquinasFim(listamaq, m);
+	op = CriaOperacoes(1);
+	listaop = InsereOperacoesFim(listaop, op);
+	listaop=InsereMaquinasOperacao(listaop, op->cod, listamaq, m->cod, m->t);
+	listajob=InsereOperacaoJob(listajob, listaop);
+
+	job = CriaJob(5);
+	listajob = InsereJobFim(listajob, job);
+	m = CriaMaquinas(3,1);
+	listamaq = InsereMaquinasFim(listamaq, m);
+	op = CriaOperacoes(3);
+	listaop = InsereOperacoesFim(listaop, op);
+	listaop=InsereMaquinasOperacao(listaop, op->cod, listamaq, m->cod, m->t);
+	listajob=InsereOperacaoJob(listajob, listaop);
+
+	job = CriaJob(1);
+	listajob = InsereJobFim(listajob, job);
+	m = CriaMaquinas(3,5);
+	listamaq = InsereMaquinasFim(listamaq, m);
+	op = CriaOperacoes(2);
+	listaop = InsereOperacoesFim(listaop, op);
+	listaop=InsereMaquinasOperacao(listaop, op->cod, listamaq, m->cod, m->t);
+	listajob=InsereOperacaoJob(listajob, listaop);
+
+	job = CriaJob(4);
+	listajob = InsereJobFim(listajob, job);
+	m = CriaMaquinas(2,1);
+	listamaq = InsereMaquinasFim(listamaq, m);
+	op = CriaOperacoes(6);
+	listaop = InsereOperacoesFim(listaop, op);
+	listaop=InsereMaquinasOperacao(listaop, op->cod, listamaq, m->cod, m->t);
+	listajob=InsereOperacaoJob(listajob, listaop);
+
+	
+	//Utilizar ficheiros
+
+	//Criar ficheiro com jobs
+	//CriaFileJobs(listajob);
+
+	//Ler as maquinas do ficheiro criado
+	//listamaq=LerFileMaquinas("fileall.txt");
+
+	//Ler as maquinas do ficheiro criado
+	//listaop=LerFileOperacoes("fileall.txt", listamaq);
+
+	//Ler as maquinas do ficheiro criado
+	//listajob=LerFileJob("fileall.txt", listaop); 
+
+	//Inserir
+	//listajob=InsereOperacaoJob(listajob, listaop);
+
+	//Alterar código de um job
+	//listajob=AlteraCodigoJob(listajob, 1, 2);
+
+	//Alterar operação de um job
+	//listajob=AlteraOperacaoJob(listajob, listaop,1,1,7);
+	
+	//Remover um job a partir do teu id
+	//listajob=RemoveJob(listajob, 1);
+
+	//Remove operação de um job
+	//listajob=RemoveOperacaoJob(listajob, 1, 1);
+
+	//Mostrar toda a lista de jobs
+	MostraALL(listajob);
+
+	//Escalonamento
+	//fcfs(listajob);
+	//listprocs(listajob);
 
 	return 0;
 
