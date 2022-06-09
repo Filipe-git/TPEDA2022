@@ -12,9 +12,11 @@
 #include <stdio.h>
 #include "dados.h"
 
-void CriaFileJobs(Job* j){
+void CriaFileJobs(Job* j, Operacoes* o, Maquinas* m){
 	FILE *fp;
 	Job* auxjob=j;
+	Operacoes* auxop=o;
+	Maquinas* auxm=m;
    	fp = fopen("fileall.txt" , "a" );
 
 	while (auxjob!=NULL)
@@ -22,13 +24,12 @@ void CriaFileJobs(Job* j){
 		if (fp==NULL)
 			printf("Nao foi possivel abrir o arquivo");
 		else{
-			fprintf(fp, "%d;%d;%d;%d\n", auxjob->cod, auxjob->op->cod, auxjob->op->m->cod, auxjob->op->m->t);
+			fprintf(fp, "%d;%d;%d;%d\n", auxjob->cod, auxop->cod, auxm->cod, auxm->t);
 		}
 		auxjob=auxjob->next;
+		auxop=auxop->next;
+		auxm=auxm->next;
 	}
-	   
-	
-	
    	fclose(fp);
 }
 
@@ -145,9 +146,11 @@ Maquinas* LerFileMaquinas(char *nomeFicheiro){
 	while (fgets(linhaficheiro, 100, fp) != NULL){
 
 		sscanf(linhaficheiro, "%d;%d;%d;%d", &aux.j,&aux.o,&aux.m,&aux.t);
-		novaMaq=CriaMaquinas(aux.m, aux.t);
-		m=InsereMaquinasFim(m, novaMaq);
-		
+		if (ExisteMaquinas(m, aux.m)==false)
+		{
+			novaMaq=CriaMaquinas(aux.m, aux.t);
+			m=InsereMaquinasFim(m, novaMaq);
+		}
 		
 	}
 	//MostraListaMaquinas(m);
@@ -215,59 +218,22 @@ Operacoes* InsereOperacoesFim(Operacoes* o, Operacoes* novo) {
  * @return Operacoes* 
  */
 
-Operacoes* InsereMaquinasOperacao(Operacoes* ListaOperacoes,int idOperacao, Maquinas* maquinas,int idMaquina,int tempo){
+Operacoes* InsereMaquinasOperacao(Operacoes* ListaOperacoes, Maquinas* maquinas){
 
-    Maquinas* novaMaquina = (Maquinas*)malloc(sizeof(Maquinas));
-    Operacoes* auxOperacoes = ListaOperacoes;
-    Maquinas* auxMaquinas = maquinas;
-    int found = 0;
-    Maquinas* tempLista = NULL;
+    Operacoes* auxop = ListaOperacoes;
+	Maquinas* auxm=maquinas;
 
+    while (auxm!=NULL) {
+		
+		auxop->m=auxm;
+		auxop->m->cod=auxm->cod;
+		auxop->m->t=auxm->t;
 
-    // Percorrer as maquinas até o prox valor ser nulo. OU percorrer as maquinas enquanto for diferente de null
-    while(auxMaquinas != NULL){
-
-        // Se a maquina.codigo for igual ao ID passado por parametro
-        if(auxMaquinas->cod == idMaquina){
-
-            found = 1;
-            // A nova máquina é igual a maquina por parametro.
-            novaMaquina->cod = auxMaquinas->cod;
-            novaMaquina->t = tempo;
-        }
-
-        // Percorrer o while.
-        auxMaquinas = auxMaquinas->next;
-    }
-
-
-    // Se for encontrada uma maquina
-    if(found != 0){
-
-        // Percorrer a lista até ser o proxValor == NULL
-        while (auxOperacoes != NULL)
-        {
-            // Se o ID operação for igual ao ID do parametro
-            if(auxOperacoes->cod == idOperacao){
-
-                // ListaTemporaria é igual a operacoesMaquinas ( operacoes -> maquina1 etc etc)
-                tempLista = auxOperacoes->m;
-                // Nova maquina por parametro , o seguinte valor é a listatemp
-                novaMaquina->next = tempLista;
-                // A maquina do aux operações é a nova maquina
-                auxOperacoes->m = novaMaquina;
-            }
-
-            auxOperacoes = auxOperacoes->next;
-
-        }
-        return ListaOperacoes;
-    }
-
-    else{
-        return ListaOperacoes;
-    }
-
+		auxop = auxop->next;
+		auxm = auxm->next;
+		
+	}
+	return ListaOperacoes;
 }
 
 
@@ -327,6 +293,40 @@ Operacoes* AlteraOperacoes(Operacoes* o, int cod, Maquinas* novamaquina) {
 	{
 
 		aux->m = novamaquina;
+		
+	}
+	return o;
+}
+/**
+ * @brief 
+ * 
+ * @param o 
+ * @param codop 
+ * @param codmaquina 
+ * @param tempo 
+ * @param novocodmaquina 
+ * @param novotempo 
+ * @return Operacoes* 
+ */
+Operacoes* AlteraMaquinaOperacoes(Operacoes* o, int codop, int codmaquina, int tempo, int novocodmaquina, int novotempo){
+	Operacoes* aux;
+	while (aux != NULL)		//se encontrou a operação
+	{
+		if (aux->cod==codop);
+		{
+			if (aux->m->cod==codmaquina)
+			{
+				if (aux->m->t==tempo)
+				{
+					aux->m->cod=novocodmaquina;
+					aux->m->t=novotempo;
+				}
+				
+			}
+
+		}
+		
+		aux=aux->next;
 		
 	}
 	return o;
@@ -403,10 +403,11 @@ void MostraListaOperacoes(Operacoes* o) {
  * @param m 
  * @return Operacoes* 
  */
-Operacoes* LerFileOperacoes(char *nomeFicheiro, Maquinas* m) {
+Operacoes* LerFileOperacoes(char *nomeFicheiro) {
     FILE* fp; // apontador para descritor de ficheiro
 	Operacoes* o = NULL;
 	JobFile aux;
+	Maquinas* m=NULL;
 	Operacoes* novaOp;
 	char linhaficheiro[100];
 
@@ -415,13 +416,17 @@ Operacoes* LerFileOperacoes(char *nomeFicheiro, Maquinas* m) {
 	while (fgets(linhaficheiro, 100, fp) != NULL){
 
 		sscanf(linhaficheiro, "%d;%d;%d;%d", &aux.j,&aux.o,&aux.m,&aux.t);
-		//printf("Operacao: %d\nMaquina: %d\nTempo: %d\n\n", auxOp.o);
-		novaOp=CriaOperacoes(aux.o);
-		o=InsereOperacoesFim(o, novaOp);
-		o=InsereMaquinasOperacao(o, aux.o, m, m->cod, m->t);
+
+		if (ExisteOperacoes(o, aux.o)==false)
+		{
+			novaOp=CriaOperacoes(aux.o);
+			o=InsereOperacoesFim(o, novaOp);
+		}		
+	
+		//o=InsereMaquinasOperacao(o, aux.o, m, aux.m, aux.t);
 		
 	}
-	//MostraListaOperacoes(o);	
+	//MostraListaOperacoes(o);
     fclose(fp);
 	return o;
 }
@@ -594,10 +599,15 @@ bool ExisteJob(Job *j, int cod){
  */
 Job* AlteraCodigoJob(Job* j, int cod, int novocodigo){
 	Job* aux = ProcuraJob(j, cod);
-	if (aux != NULL)		//se encontrou a operação
+	while (aux != NULL)		//se encontrou a operação
 	{
+		if (aux->cod==cod)
+		{
+			aux->cod=novocodigo;
 
-		aux->cod=novocodigo;
+		}
+		
+		aux=aux->next;
 		
 	}
 	return j;
@@ -613,23 +623,23 @@ Job* AlteraCodigoJob(Job* j, int cod, int novocodigo){
  * @param novaoperacao 
  * @return Job* 
  */
-Job* AlteraOperacaoJob(Job* j, Operacoes* o, int codjob, int codoperacao, int novaoperacao){
-	Job* auxj = j;
-	Operacoes* auxop = o;
-	while (auxj!=NULL)
+Job* AlteraOperacaoJob(Job* j, int codjob, int codoperacao, int novaoperacao){
+	Job* aux = ProcuraOperacaoJob(j, codjob,codoperacao);
+	while (aux != NULL)		//se encontrou a operação
 	{
-		if (auxj->cod=codjob)
+		if (aux->cod==codjob);
 		{
-			auxop=ProcuraOperacoes(auxop, codoperacao);
-
-			if (ExisteOperacoes(auxop, auxop->cod)==true)
+			if (aux->op->cod==codoperacao)
 			{
-				auxop->cod=novaoperacao;
+				aux->op->cod=novaoperacao;
 			}
-			
+
 		}
 		
+		aux=aux->next;
+		
 	}
+	return j;
 }
 /**
  * @brief 
@@ -640,8 +650,8 @@ Job* AlteraOperacaoJob(Job* j, Operacoes* o, int codjob, int codoperacao, int no
  */
 Job* RemoveJob(Job* j, int cod){
 	if (j == NULL) return NULL;			//Lista vazia
-	//if (!ExisteOperacoes(o, cod)) return o;	//se não existe
-
+	//if (!ExisteJob(j, cod)) return j;	//se não existe
+	
 	if (j->cod == cod) {		//remove no inicio da lista
 		Job* aux = j;
 		j = j->next;
@@ -745,8 +755,34 @@ Job* ProcuraJob(Job* j, int cod) {
 	else
 	{
 		Job* aux = j;
-		while (aux != NULL) {
+		while (aux!=NULL)
+		{
+			
 			if (aux->cod == cod) {
+				return (aux);		//encontrei
+			}
+			aux = aux->next;
+		
+		}
+		return NULL;
+		
+	}
+}
+/**
+ * @brief 
+ * 
+ * @param j 
+ * @param cod 
+ * @param codoperacao 
+ * @return Job* 
+ */
+Job* ProcuraOperacaoJob(Job* j, int cod, int codoperacao) {
+	if (j == NULL) return NULL;		//lista vazia
+	else
+	{
+		Job* aux = j;
+		while (aux != NULL) {
+			if (aux->cod == cod && aux->op->cod==codoperacao) {
 				return (aux);		//encontrei
 			}
 			aux = aux->next;
@@ -766,9 +802,10 @@ Job* ProcuraJob(Job* j, int cod) {
  * @param o 
  * @return Job* 
  */
-Job* LerFileJob(char *nomeFicheiro, Operacoes* o) {
+Job* LerFileJob(char *nomeFicheiro) {
     FILE *fp; // apontador para descritor de ficheiro
 	Job *j = NULL;
+	Operacoes *o=NULL;
 	JobFile aux;
 	Job* novoJob;
 
@@ -779,11 +816,17 @@ Job* LerFileJob(char *nomeFicheiro, Operacoes* o) {
 	while (fgets(linhaficheiro, 100, fp) != NULL){
 
 		sscanf(linhaficheiro, "%d;%d;%d;%d", &aux.j, &aux.o, &aux.m, &aux.t);
-		novoJob=CriaJob(aux.j);
-		j=InsereJobFim(j, novoJob);
-		j=InsereOperacaoJob(j, o);
+		if (ExisteJob(j, aux.j)==false)
+		{
+			novoJob=CriaJob(aux.j);
+			j=InsereJobFim(j, novoJob);
+		}
+		
+		/* novoJob=CriaJob(aux.j);
+		j=InsereJobFim(j, novoJob); */
+		//j=InsereOperacaoJob(j, o);
 	}
-	MostraListaJob(j);
+	//MostraListaJob(j);
     fclose(fp);
 	return j;
 }
@@ -816,23 +859,6 @@ void MostraALL(Job* j){
 	
 }
 
-//Ficheiro formatado como csv
-	//usar fgets()+strok()
-	//FILE* fp;
-	/* char c1[TAM];
-	char* token;
-	fp = fopen("FicheiroDados.csv", "r");
-	if (fp==NULL) exit(1); 
-	while (fgets(c1, TAM, fp)!=NULL){
-		c1[strlen(c1) - 1] = '\0';
-		token = strtok(c1, ";");
-		while (token != NULL) {
-			printf("%s\n", token);
-			token = strtok(NULL, ";");
-		}
-	}
-	fclose(fp);*/
-
 #pragma endregion
 
 
@@ -845,20 +871,33 @@ void MostraALL(Job* j){
  * @param j 
  * @param o 
  */
-void fcfs (Job *j) {
-    int tempo = 0, inicio, fim;
+void fcfs (Job *j, Operacoes *o, Maquinas *m) {
+
+    int tempo, tempmin=100, temptotal=0, auxop;
 	Job *auxj = j;
-  printf("\tEscalonamento\n");
+	Job *auxj2 = j;
+  	printf("\tEscalonamento\n");
     printf("\n");
-  while (auxj != NULL) {
-    inicio = tempo;
-    tempo += auxj->op->m->t;
-    fim = tempo;
-    printf("Maquina: %d\tTempo: %d\tEspera: %d\tRetorno: %d\n", auxj->cod, tempo, inicio, fim);
-    auxj = auxj->next;
-  };
+	
+	while (auxj!=NULL)
+	{
+	
+		printf("\nJob: %d", auxj->cod);
+
+		tempo = auxj->op->m->t;
+		if (tempo<tempmin){
+			tempmin=tempo;
+			printf("\nTempo Operacao: %d", tempmin);
+			temptotal+=tempmin;
+		}
+		
+		auxj=auxj->next;
+	}
+	
+  	
     printf("\n\n");
-};
+
+}
 
 /* Listar Processos */
 	void listprocs (Job *j) {
@@ -871,6 +910,6 @@ void fcfs (Job *j) {
 
   	};
   	printf("\n\n");
- };
+ }
 
 #pragma endregion

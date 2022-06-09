@@ -119,11 +119,12 @@ Maquinas* LerFileMaquinas(char *nomeFicheiro);
 bool ExisteOperacoes(Operacoes* o, int cod);
 Operacoes* CriaOperacoes(int cod);
 Operacoes* InsereOperacoesFim(Operacoes* o, Operacoes* novo);
-Operacoes* InsereMaquinasOperacao(Operacoes* ListaOperacoes,int idOperacao, Maquinas* maquinas,int idMaquina,int tempo);
+Operacoes* InsereMaquinasOperacao(Operacoes* ListaOperacoes, Maquinas* maquinas);
 Operacoes* AlteraOperacoes(Operacoes* o, int cod, Maquinas* novamaquina);
+Operacoes* AlteraMaquinaOperacoes(Operacoes* o, int codop, int codmaquina, int tempo, int novocodmaquina, int novotempo);
 Operacoes* RemoveOperacoes(Operacoes* o, int cod);
 Operacoes* ProcuraOperacoes(Operacoes* o, int cod); 
-Operacoes* LerFileOperacoes(char *nomeFicheiro, Maquinas* m);
+Operacoes* LerFileOperacoes(char *nomeFicheiro);
 void MostraListaOperacoes(Operacoes* o);
 void DestroiLista(Operacoes** o);
 int QuantidadeMinima(Operacoes* o);
@@ -135,14 +136,15 @@ int QuantidadeMedia(Operacoes* o);
 Job* CriaJob(int cod);
 Job* InsereJobFim(Job* j, Job* novo);
 bool ExisteJob(Job *j, int cod);
-Job* RemoveJob(Job* j, int cod);
+Job* RemoveJob(Job *j, int cod);
 Job* ProcuraJob(Job* j, int cod);
+Job* ProcuraOperacaoJob(Job* j, int cod, int codoperacao);
 Job* AlteraCodigoJob(Job* j, int cod, int novocodigo);
-Job* AlteraOperacaoJob(Job* j, Operacoes* o, int codjob, int codoperacao, int novaoperacao);
+Job* AlteraOperacaoJob(Job* j, int codjob, int codoperacao, int novaoperacao);
 Job* RemoveOperacaoJob(Job* listajobs, int idoperacao, int idjob);
 Job* InsereOperacaoJob(Job* j, Operacoes* o);
-Job* LerFileJob(char *nomeFicheiro,Operacoes* o);
-void CriaFileJobs(Job* j);
+Job* LerFileJob(char *nomeFicheiro);
+void CriaFileJobs(Job* j, Operacoes* o, Maquinas* m);
 void MostraListaJob(Job* j);
 void MostraALL(Job* j);
 #pragma endregion
@@ -150,7 +152,7 @@ void MostraALL(Job* j);
 
 #pragma region Planeamento
 
-void fcfs (Job *j);
+void fcfs (Job *j, Operacoes *o, Maquinas *m);
 void listprocs (Job *j);
 
 #pragma	endregion
